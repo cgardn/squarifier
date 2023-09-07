@@ -42,3 +42,8 @@ a {
 .accordion-caret.up {
 	transform: rotate(0deg) translateY(8px);
 }
+.outputLinkContainer {
+	display: flex;
+	flex-direction: column;
+	gap: 20px;
+}

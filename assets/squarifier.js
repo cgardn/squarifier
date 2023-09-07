@@ -74,11 +74,11 @@ function handleFileInputs() {
 		// then finally convert zipped images into data url for download
 		zip.generateAsync({type: "blob"})
 		.then( blob => {
-			const outputLink = document.createElement('a');
+			const outputLink = document.getElementById("output-template").content.cloneNode(true).children[0]
 			outputLink.download = 'squared_images.zip';
 			outputLink.href = URL.createObjectURL(blob)
 			outputLink.innerText = "Your images are ready!"
-			document.querySelector("body")?.appendChild(outputLink);
+			document.querySelector(".outputLinkContainer")?.appendChild(outputLink);
 		})
 	})
 }
