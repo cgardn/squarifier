@@ -7,6 +7,9 @@
 * - default to table of links for mobile screens, but give option either way (zip or table of links)
 * - restyle output links
 * - check mime type of files and show error when uploading non-images
+* - put most recently processed output link at the top instead of the bottom
+* - test and enable the following image types: 
+*   -- AVIF, TIFF, WEBP, SVG	
 */
 
 function setupStartButton() {
@@ -17,11 +20,31 @@ function setupStartButton() {
 
 function setupFileInputs() {
 	const fileInput = document.getElementById("fileinput");
+	const errorMessage = document.getElementById("error-toast");
+	const allowedTypes = [
+		"image/png",
+		"image/jpeg",
+		"image/bmp"
+	]
 	if (fileInput) {
+		
 		fileInput.addEventListener('change', (e) => {
+			errorMessage.style.display = "none";
+			
+			for (let i = 0; i < fileInput.files.length; i++) {
+				if (!allowedTypes.includes(fileInput.files[i].type)) {
+						errorMessage.innerText = "Only PNG and JPG/JPEG are supported at this time"
+						errorMessage.style.display = "block";
+						return
+				}
+			}
+			Array.from(fileInput.files).forEach(file => {
+				
+			})
+			
 			if (fileInput.files && fileInput.files.length > 0) {
 				document.getElementById("start-button").style.display = "block"
-				document.querySelector(".inputContainer span").innerText = `${fileInput.files.length} selected`
+				document.getElementById("image-count").innerText = `${fileInput.files.length} selected`
 			}
 			if (fileInput.files && fileInput.files.length > 1) {
 				document.getElementById("multi-image-notice").style.display = "block"

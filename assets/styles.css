@@ -33,7 +33,7 @@ input[type="file"] {
 	position: relative;
 	width: 300px;
 }
-.inputContainer span {
+.inputContainer span#image-count {
 	position: absolute;
 	right: -10px;
 	top: 7px;
@@ -90,7 +90,8 @@ a {
 	gap: 20px;
 	width: 200px;
 	max-height: 250px;
-	overflow: scroll;
+	overflow-y: scroll;
+	
 }
 @media screen and (min-width: 768px) {
 	.outputLinkContainer {
@@ -122,4 +123,15 @@ a {
 
 .pushable:active .front {
 	transform: translateY(-2px);
+}
+
+#error-toast {
+	position: absolute;
+	top: 0;
+	width: 100%;
+	box-shadow: 0px 10px 10px darkgrey;
+	background-color: rgb(245 28 51);
+	padding: 10px;
+	color: white;
+	display: none;
 }
