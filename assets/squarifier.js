@@ -1,10 +1,16 @@
 /* TODO
 * - move to background thread in web worker and post updates to fill a loading bar
-* - make it look nicer
-* - make links into a button style (background, border, inverting shadow for click effect)
+* - make it look nicer (choose font)
+* - make links into a 3d button style (darker bg and lighter moving fg w/ css animation on hover+click)
 * - make little table of results as you do more, possible save in 
 * - put on cloudflare or someplace free
 * - donate link
+*
+* stuff to add
+* - bg color options
+* - size options (?)
+* - default to table of links for mobile screens, but give option either way (zip or table of links)
+* - wait to process until pressing "START" button
 */
 
 function setupPrivacyAccordion() {

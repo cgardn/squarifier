@@ -4,20 +4,29 @@ body {
 	flex-wrap: wrap;
 	flex-direction: column;
 	align-items: center;
+	font-family: "Inter", sans-serif;
+	font-weight: 300;
+	margin: 0;
+	height: 100vh;
+	background: #eee;
 }
 body > * {
 	max-width: 300px;
 	margin-bottom: 30px;
 	text-align: center;
 }
+h1, h3 {
+	font-weight: 400;
+}
 h1 {
-	margin-bottom: 30px;
-	flex: 1 0 30%;
+	margin: 150px 0 100px;
 }
 input {
-	flex: 1 0 30%;
+	flex: 0 0 auto;
+	margin-bottom: auto;
 	max-width: 300px;
 	margin-left: 100px;
+	font-family: "Inter", sans-serif;
 }
 a {
 	font-size: 20px;
@@ -28,6 +37,10 @@ a {
 #privacy-content {
 	display: none;
 	text-align: left;
+	position: absolute;
+	bottom: 50px;
+	background-color: #eee;
+	padding: 10px 20px;
 }
 #privacy-content.accordion {
 	display: block;
@@ -35,12 +48,12 @@ a {
 .accordion-caret {
 	font-weight: bold;
 	font-size: 1.5em;
-	transform: rotate(180deg) translateY(2px);
+	transform: rotate(0deg) translateY(8px);
 	display: inline-block;
 	margin-left: 10px;
 }
 .accordion-caret.up {
-	transform: rotate(0deg) translateY(8px);
+	transform: rotate(180deg) translateY(0px);
 }
 .outputLinkContainer {
 	display: flex;
