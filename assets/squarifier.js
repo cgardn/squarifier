@@ -2,12 +2,8 @@
 * - move to background thread in web worker and post updates to fill a loading bar
 * - put on cloudflare or someplace free
 * - donate link
-* - bg color options
-* - size options (?)
-* - default to table of links for mobile screens, but give option either way (zip or table of links)
-* - restyle output links
-* - check mime type of files and show error when uploading non-images
-* - put most recently processed output link at the top instead of the bottom
+* - bg color options (fill color for squared images)
+* - size options (?) - can't upscale so probably not
 * - test and enable the following image types: 
 *   -- AVIF, TIFF, WEBP, SVG	
 */
@@ -114,7 +110,9 @@ function processImages() {
 		// generate link name and filename
 		const date = new Date()
 		const time = `${date.getHours()}:${date.getMinutes()}`
-		const link_text = `${imageBlobs.length} image${imageBlobs.length > 1 ? 's' : ''} - ${time}`
+		const outputContainer = document.querySelector(".outputLinkContainer")
+		const batch_count = Number(outputContainer.dataset.batchCount)
+		const link_text = `#${batch_count} - ${imageBlobs.length} image${imageBlobs.length > 1 ? 's' : ''} - ${time}`
 		const filename = `squarifier_${date.getMonth()+1}-${date.getDate()}-${date.getFullYear() % 1000}-${time.replace(':','')}`
 		
 		// zip the blobs, only do this if more than 1 image
@@ -131,7 +129,8 @@ function processImages() {
 				outputLink.download = `${filename}.zip`;
 				outputLink.href = URL.createObjectURL(blob)
 				outputLink.innerText = link_text
-				document.querySelector(".outputLinkContainer")?.appendChild(outputLink);
+				// insertBefore appends if insertion reference (firstElementChild) is null
+				outputContainer.insertBefore(outputLink, outputContainer.firstElementChild);
 				outputLink.addEventListener("click", () => outputLink.style.backgroundColor = "grey")
 			})
 		} else {
@@ -139,9 +138,12 @@ function processImages() {
 			outputLink.download = `${filename}.png`;
 			outputLink.href = URL.createObjectURL(imageBlobs[0])
 			outputLink.innerText = link_text
-			document.querySelector(".outputLinkContainer")?.appendChild(outputLink);
+			// insertBefore appends if insertion reference (firstElementChild) is null
+			outputContainer.insertBefore(outputLink, outputContainer.firstElementChild);
 			outputLink.addEventListener("click", () => outputLink.style.backgroundColor = "grey")
 		}
+		const output = document.querySelector(".outputLinkContainer")
+		output.dataset.batchCount = Number(output.dataset.batchCount) + 1
 	})
 }
 
