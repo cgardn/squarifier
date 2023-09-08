@@ -1,21 +1,12 @@
 /* TODO
 * - move to background thread in web worker and post updates to fill a loading bar
-* - make it look nicer (choose font)
-* - make links into a 3d button style (darker bg and lighter moving fg w/ css animation on hover+click)
-* - make little table of results as you do more, possible save in 
 * - put on cloudflare or someplace free
 * - donate link
-*
-* stuff to add
 * - bg color options
 * - size options (?)
 * - default to table of links for mobile screens, but give option either way (zip or table of links)
-* - show each option as previous step completed (i.e. hide link/zip and color picker until images loaded)
-* 	-- apparently most phones can unzip now so don't do a warning, so we don't need a zip/single toggle
-*   -- however, it still makes sense to default to individual image when doing one at a time, but notify multiples get zipped
-* - wait to process until pressing "START" button
-* - name file with timestamp and image quantity
-* - link title should have image quantity and timecode HH:MM
+* - restyle output links
+* - check mime type of files and show error when uploading non-images
 */
 
 function setupStartButton() {
@@ -97,21 +88,35 @@ function processImages() {
 			await syncPromise
 		})
 	).then( () => {
-		// zip the blobs
-		let zip = new JSZip()
-		imageBlobs.forEach( (blob, i) => {
-			zip.folder("squared_images").file(`image${i+1}.png`, blob)
-		})
+		// generate link name and filename
+		const date = new Date()
+		const time = `${date.getHours()}:${date.getMinutes()}`
+		const link_text = `${imageBlobs.length} image${imageBlobs.length > 1 ? 's' : ''} - ${time}`
+		const filename = `squarifier_${date.getMonth()+1}-${date.getDate()}-${date.getFullYear() % 1000}-${time.replace(':','')}`
 		
-		// then finally convert zipped images into data url for download
-		zip.generateAsync({type: "blob"})
-		.then( blob => {
+		// zip the blobs, only do this if more than 1 image
+		if (imageBlobs.length > 1) {
+			let zip = new JSZip()
+			imageBlobs.forEach( (blob, i) => {
+				zip.folder("squared_images").file(`image${i+1}.png`, blob)
+			})
+			
+			// then finally convert zipped images into data url for download
+			zip.generateAsync({type: "blob"})
+			.then( blob => {
+				const outputLink = document.getElementById("output-template").content.cloneNode(true).children[0]
+				outputLink.download = `${filename}.zip`;
+				outputLink.href = URL.createObjectURL(blob)
+				outputLink.innerText = link_text
+				document.querySelector(".outputLinkContainer")?.appendChild(outputLink);
+			})
+		} else {
 			const outputLink = document.getElementById("output-template").content.cloneNode(true).children[0]
-			outputLink.download = 'squared_images.zip';
-			outputLink.href = URL.createObjectURL(blob)
-			outputLink.innerText = "Your images are ready!"
+			outputLink.download = `${filename}.png`;
+			outputLink.href = URL.createObjectURL(imageBlobs[0])
+			outputLink.innerText = link_text
 			document.querySelector(".outputLinkContainer")?.appendChild(outputLink);
-		})
+		}
 	})
 }
 

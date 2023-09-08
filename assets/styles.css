@@ -88,6 +88,14 @@ a {
 	display: flex;
 	flex-direction: column;
 	gap: 20px;
+	width: 200px;
+	max-height: 250px;
+	overflow: scroll;
+}
+@media screen and (min-width: 768px) {
+	.outputLinkContainer {
+		max-height: 500px;
+	}
 }
 
 #start-button {
@@ -95,7 +103,7 @@ a {
 	margin: 30px;
 }
 .pushable {
-    background: hsl(340deg 100% 32%);
+    background: hsl(241.4deg 56.14% 42.46%);
     border-radius: 12px;
     border: none;
     padding: 0;
@@ -107,7 +115,7 @@ a {
 	padding: 12px 42px;
 	border-radius: 12px;
 	font-size: 1.25rem;
-	background: hsl(345deg 100% 47%);
+	background: hsl(210.94deg 70.48% 43.5%);
 	color: white;
 	transform: translateY(-6px);
 }
