@@ -132,6 +132,7 @@ function processImages() {
 				outputLink.href = URL.createObjectURL(blob)
 				outputLink.innerText = link_text
 				document.querySelector(".outputLinkContainer")?.appendChild(outputLink);
+				outputLink.addEventListener("click", () => outputLink.style.backgroundColor = "grey")
 			})
 		} else {
 			const outputLink = document.getElementById("output-template").content.cloneNode(true).children[0]
@@ -139,6 +140,7 @@ function processImages() {
 			outputLink.href = URL.createObjectURL(imageBlobs[0])
 			outputLink.innerText = link_text
 			document.querySelector(".outputLinkContainer")?.appendChild(outputLink);
+			outputLink.addEventListener("click", () => outputLink.style.backgroundColor = "grey")
 		}
 	})
 }
