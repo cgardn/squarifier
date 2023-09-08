@@ -19,9 +19,16 @@
 	<body>
 		<noscript>Sorry, but this website only works with Javascript :/</noscript>
 		<h1>Squarifier</h1>
-		<h3>Select any number of images, and they'll be made into squares</h3>
+		<h3 class="gutter">Select any number of images, and they'll be made into squares</h3>
 
-		<input type="file" id="fileinput" multiple />
+		<div class="inputContainer">
+			<label class="custom-file-input">
+				<input type="file" id="fileinput" multiple />
+				Select Images
+			</label>
+			<span></span>
+		</div>
+
 		
 		<template id="output-template">
 			<a href class="output-button">
@@ -30,6 +37,11 @@
 				</span>
 			</a>
 		</template>
+		
+		<button class="pushable" id="start-button">
+			<span class="front">Start</span>
+		</button>
+		<p class="gutter" id="multi-image-notice">Multiple images are packaged into a .zip file. Just tap-and-hold on the downloaded file and you should get an option to "unzip" or "unpack." </p>
 		
 		<div class="outputLinkContainer"></div>
 		

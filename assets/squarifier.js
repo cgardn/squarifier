@@ -10,8 +10,34 @@
 * - bg color options
 * - size options (?)
 * - default to table of links for mobile screens, but give option either way (zip or table of links)
+* - show each option as previous step completed (i.e. hide link/zip and color picker until images loaded)
+* 	-- apparently most phones can unzip now so don't do a warning, so we don't need a zip/single toggle
+*   -- however, it still makes sense to default to individual image when doing one at a time, but notify multiples get zipped
 * - wait to process until pressing "START" button
+* - name file with timestamp and image quantity
+* - link title should have image quantity and timecode HH:MM
 */
+
+function setupStartButton() {
+	const button = document.getElementById("start-button")?.addEventListener("click", () => {
+		processImages();
+	})
+}
+
+function setupFileInputs() {
+	const fileInput = document.getElementById("fileinput");
+	if (fileInput) {
+		fileInput.addEventListener('change', (e) => {
+			if (fileInput.files && fileInput.files.length > 0) {
+				document.getElementById("start-button").style.display = "block"
+				document.querySelector(".inputContainer span").innerText = `${fileInput.files.length} selected`
+			}
+			if (fileInput.files && fileInput.files.length > 1) {
+				document.getElementById("multi-image-notice").style.display = "block"
+			}
+		})
+	}
+}
 
 function setupPrivacyAccordion() {
 	const accordionTrigger = document.getElementById("privacy-trigger");
@@ -27,7 +53,7 @@ function setupPrivacyAccordion() {
 	})
 }
 
-function handleFileInputs() {
+function processImages() {
 	const fileInput = document.getElementById("fileinput");
 	let imageBlobs = []
 	
@@ -90,12 +116,7 @@ function handleFileInputs() {
 }
 
 
-const fileInput = document.getElementById("fileinput");
-if (fileInput) {
-	fileInput.addEventListener('change', (e) => {
-		const linkOutput = document.getElementById("linkoutput");
-		handleFileInputs();
-	})
-}
 
 setupPrivacyAccordion()
+setupStartButton()
+setupFileInputs()

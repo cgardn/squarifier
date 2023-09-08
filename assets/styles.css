@@ -11,28 +11,56 @@ body {
 	background: #eee;
 }
 body > * {
-	max-width: 300px;
-	margin-bottom: 30px;
 	text-align: center;
 }
 h1, h3 {
 	font-weight: 400;
 }
 h1 {
-	margin: 150px 0 100px;
+	margin: 100px 0 70px;
 }
-input {
+h3 {
+	margin-bottom: 30px;
+}
+input[type="file"] {
+	display: none;
 	flex: 0 0 auto;
-	margin-bottom: auto;
 	max-width: 300px;
 	margin-left: 100px;
 	font-family: "Inter", sans-serif;
+}
+.inputContainer {
+	position: relative;
+	width: 300px;
+}
+.inputContainer span {
+	position: absolute;
+	right: -10px;
+	top: 7px;
+}
+.custom-file-input {
+    border: 1px solid #ccc;
+    display: inline-block;
+    padding: 6px 12px;
+    cursor: pointer;
+}
 }
 a {
 	font-size: 20px;
 	flex: 1 0 30%;
 	max-width: 200px;
-	
+}
+.gutter {
+	margin-left: 15px;
+	margin-right: 15px;
+}
+
+#multi-image-notice {
+	font-size: smaller;
+	display: none;
+}
+#privacy-trigger {
+	margin-top: auto;
 }
 #privacy-content {
 	display: none;
@@ -41,6 +69,7 @@ a {
 	bottom: 50px;
 	background-color: #eee;
 	padding: 10px 20px;
+
 }
 #privacy-content.accordion {
 	display: block;
@@ -59,4 +88,30 @@ a {
 	display: flex;
 	flex-direction: column;
 	gap: 20px;
+}
+
+#start-button {
+	display: none;
+	margin: 30px;
+}
+.pushable {
+    background: hsl(340deg 100% 32%);
+    border-radius: 12px;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    outline-offset: 4px;
+}
+.front {
+	display: block;
+	padding: 12px 42px;
+	border-radius: 12px;
+	font-size: 1.25rem;
+	background: hsl(345deg 100% 47%);
+	color: white;
+	transform: translateY(-6px);
+}
+
+.pushable:active .front {
+	transform: translateY(-2px);
 }
