@@ -4,7 +4,11 @@
 * - size options (?) - can't upscale so probably not
 * - test and enable the following image types: 
 *   -- AVIF, TIFF, WEBP, SVG	
-* - ensure minutes and hours are always two digits
+* - loading spinner until web-worker and progress bar/messaging
+* - progress bar
+* - fix height of output container to avoid scrollbar until necessary, dont auto-top margin on privacy trigger
+* - check size of loaded files and show warning if it's going to take a while (i.e. more than 50-100mb)
+* - favicon (white square, black border)
 */
 
 function setupStartButton() {
@@ -42,7 +46,10 @@ function setupFileInputs() {
 				document.getElementById("image-count").innerText = `${fileInput.files.length} selected`
 			}
 			if (fileInput.files && fileInput.files.length > 1) {
-				document.getElementById("multi-image-notice").style.display = "block"
+				document.querySelectorAll(".multi-image-notice").forEach(el => {
+					if (window.clientWidth > 767 && el.classList.contains("mobile-only")) { return; }
+					el.style.display = "block";
+				})
 			}
 		})
 	}
@@ -111,7 +118,7 @@ function processImages() {
 		const time = `${date.getHours() < 10 ? '0' + date.getHours() : date.getHours()}:${date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes()}`
 		const outputContainer = document.querySelector(".outputLinkContainer")
 		const batch_count = Number(outputContainer.dataset.batchCount)
-		const link_text = `#${batch_count} - ${imageBlobs.length} image${imageBlobs.length > 1 ? 's' : ''} - ${time}`
+		const link_text = `#${batch_count} - ${imageBlobs.length} image${imageBlobs.length > 1 ? 's' : ''}`
 		const filename = `squarifier_${date.getMonth()+1}-${date.getDate()}-${date.getFullYear() % 1000}-${time.replace(':','')}`
 		
 		// zip the blobs, only do this if more than 1 image

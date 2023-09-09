@@ -1,3 +1,7 @@
+:root {
+	--site-background: #eee;
+	--text-color: #000;
+}
 body {
 	display: flex;
 	justify-content: center;
@@ -8,7 +12,7 @@ body {
 	font-weight: 300;
 	margin: 0;
 	height: 100vh;
-	background: #eee;
+	background: var(--site-background);
 }
 body > * {
 	text-align: center;
@@ -55,8 +59,12 @@ a {
 	margin-right: 15px;
 }
 
-#multi-image-notice {
+.multi-image-notice {
 	font-size: smaller;
+	margin-block-start: 3px;
+	margin-block-end: 3px;
+}
+.multi-image-notice {
 	display: none;
 }
 #privacy-trigger {
@@ -67,7 +75,7 @@ a {
 	text-align: left;
 	position: absolute;
 	bottom: 50px;
-	background-color: #eee;
+	background-color: var(--site-background);
 	padding: 10px 20px;
 	box-shadow: 0px -10px 10px #bbb;
 }
@@ -90,8 +98,9 @@ a {
 	gap: 20px;
 	width: 200px;
 	max-height: 250px;
-	overflow-y: scroll;
+	overflow-y: auto;
 	align-items: center;
+	margin-top: 10px;
 }
 .outputLinkContainer a {
 	text-decoration: none;
