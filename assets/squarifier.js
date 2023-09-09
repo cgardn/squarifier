@@ -1,11 +1,10 @@
 /* TODO
 * - move to background thread in web worker and post updates to fill a loading bar
-* - put on cloudflare or someplace free
-* - donate link
 * - bg color options (fill color for squared images)
 * - size options (?) - can't upscale so probably not
 * - test and enable the following image types: 
 *   -- AVIF, TIFF, WEBP, SVG	
+* - ensure minutes and hours are always two digits
 */
 
 function setupStartButton() {
@@ -109,7 +108,7 @@ function processImages() {
 	).then( () => {
 		// generate link name and filename
 		const date = new Date()
-		const time = `${date.getHours()}:${date.getMinutes()}`
+		const time = `${date.getHours() < 10 ? '0' + date.getHours() : date.getHours()}:${date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes()}`
 		const outputContainer = document.querySelector(".outputLinkContainer")
 		const batch_count = Number(outputContainer.dataset.batchCount)
 		const link_text = `#${batch_count} - ${imageBlobs.length} image${imageBlobs.length > 1 ? 's' : ''} - ${time}`
