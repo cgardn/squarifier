@@ -1,19 +1,26 @@
 /* TODO
-* - move to background thread in web worker and post updates to fill a loading bar
 * - bg color options (fill color for squared images)
 * - size options (?) - can't upscale so probably not
 * - test and enable the following image types: 
-*   -- AVIF, TIFF, WEBP, SVG	
-* - loading spinner until web-worker and progress bar/messaging
-* - progress bar
-* - fix height of output container to avoid scrollbar until necessary, dont auto-top margin on privacy trigger
+*   -- AVIF, TIFF, WEBP, SVG, BMP
+* - loading spinner on in-progress jobs
+* - cancel button on in-progress jobs
 * - check size of loaded files and show warning if it's going to take a while (i.e. more than 50-100mb)
-* - favicon (white square, black border)
+* - downloading finished images closes the web worker
+* - button for clearing results w/ confirmation if not in error state
+	-- this button will also clean up the worker
+
 */
+
+// not sure where else to track this atm
+window.currentJobId = 1;
+window.workers = {};
 
 function setupStartButton() {
 	const button = document.getElementById("start-button")?.addEventListener("click", () => {
-		processImages();
+		if (document.getElementById("fileinput").files.length <= 0) { return }
+		dispatchJob();
+		clearInput();
 	})
 }
 
@@ -25,30 +32,36 @@ function setupFileInputs() {
 		"image/jpeg",
 		"image/bmp"
 	]
+
 	if (fileInput) {
-		
 		fileInput.addEventListener('change', (e) => {
 			errorMessage.style.display = "none";
 			
 			for (let i = 0; i < fileInput.files.length; i++) {
 				if (!allowedTypes.includes(fileInput.files[i].type)) {
-						errorMessage.innerText = "Only PNG and JPG/JPEG are supported at this time"
-						errorMessage.style.display = "block";
-						return
+					errorMessage.innerText = "Only PNG and JPG/JPEG are supported at this time"
+					errorMessage.style.display = "block";
+					return
 				}
 			}
-			Array.from(fileInput.files).forEach(file => {
-				
-			})
+			
+			/* TODO not sure if I actually want this
+			const sizeThreshold = 30000000; // 30 MB
+			const fileSizeSum = filelist.reduce( (acc, curr) => {acc + curr.size}, 0);
+			if (fileSizeSum > sizeThreshold) {
+				errorMessage.innerText = "Large files detected - processing may take longer than expected"
+				errorMessage.style.display = "block";
+			}
+			*/
 			
 			if (fileInput.files && fileInput.files.length > 0) {
-				document.getElementById("start-button").style.display = "block"
+				document.getElementById("start-button").style.visibility = "visible"
 				document.getElementById("image-count").innerText = `${fileInput.files.length} selected`
 			}
 			if (fileInput.files && fileInput.files.length > 1) {
 				document.querySelectorAll(".multi-image-notice").forEach(el => {
 					if (window.clientWidth > 767 && el.classList.contains("mobile-only")) { return; }
-					el.style.display = "block";
+					el.style.visibility = "visible";
 				})
 			}
 		})
@@ -69,91 +82,73 @@ function setupPrivacyAccordion() {
 	})
 }
 
-function processImages() {
-	const fileInput = document.getElementById("fileinput");
-	let imageBlobs = []
+function dispatchJob() {
+	// clones output link template and sets up required data attributes
+	// then dispatches the processing+zip job to a new web worker
+	// all further updates and terminating worker handled by updateJobProgress/output link click handler
+	const files = Array.from(document.getElementById("fileinput").files);
+	const outputLink = document.getElementById("output-template").content.cloneNode(true).children[0]
+	const outputContainer = document.querySelector(".outputLinkContainer")
 	
-	Promise.all(
-		Array.from(fileInput.files).map( async (file, i) => {
-			const image = new Image()
-			const reader = new FileReader()
-			
-			const syncPromise = new Promise( (resolve) => {
-				image.onload = async () => {
-					const canvas = new OffscreenCanvas(0,0)
-					const ctx = canvas.getContext('2d');
-					const size = Math.max(image.width, image.height);
-					canvas.width = size;
-					canvas.height = size;
-					
-					// set white bg
-					ctx.fillStyle = 'white';
-					ctx.fillRect(0,0,size,size);
-					
-					// find center image position
-					const x = (size - image.width) / 2;
-					const y = (size - image.height) / 2;
-					
-					// draw image on canvas
-					ctx.drawImage(image, x, y);
-
-					// output image file
-					
-					// probably need to get this as a blob or whatever instead
-					//imageOutputs.push(canvas.toDataURL("image/png"));
-					const blob = await canvas.convertToBlob({type: "image/png"})
-					imageBlobs.push(blob)
-					resolve();
-				}
-				reader.onload = function(e) {
-					image.src = e.target.result
-				}
-				reader.readAsDataURL(file)
-			})
-			await syncPromise
-		})
-	).then( () => {
-		// generate link name and filename
-		const date = new Date()
-		const time = `${date.getHours() < 10 ? '0' + date.getHours() : date.getHours()}:${date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes()}`
-		const outputContainer = document.querySelector(".outputLinkContainer")
-		const batch_count = Number(outputContainer.dataset.batchCount)
-		const link_text = `#${batch_count} - ${imageBlobs.length} image${imageBlobs.length > 1 ? 's' : ''}`
-		const filename = `squarifier_${date.getMonth()+1}-${date.getDate()}-${date.getFullYear() % 1000}-${time.replace(':','')}`
-		
-		// zip the blobs, only do this if more than 1 image
-		if (imageBlobs.length > 1) {
-			let zip = new JSZip()
-			imageBlobs.forEach( (blob, i) => {
-				zip.folder("squared_images").file(`image${i+1}.png`, blob)
-			})
-			
-			// then finally convert zipped images into data url for download
-			zip.generateAsync({type: "blob"})
-			.then( blob => {
-				const outputLink = document.getElementById("output-template").content.cloneNode(true).children[0]
-				outputLink.download = `${filename}.zip`;
-				outputLink.href = URL.createObjectURL(blob)
-				outputLink.innerText = link_text
-				// insertBefore appends if insertion reference (firstElementChild) is null
-				outputContainer.insertBefore(outputLink, outputContainer.firstElementChild);
-				outputLink.addEventListener("click", () => outputLink.style.backgroundColor = "grey")
-			})
-		} else {
-			const outputLink = document.getElementById("output-template").content.cloneNode(true).children[0]
-			outputLink.download = `${filename}.png`;
-			outputLink.href = URL.createObjectURL(imageBlobs[0])
-			outputLink.innerText = link_text
-			// insertBefore appends if insertion reference (firstElementChild) is null
-			outputContainer.insertBefore(outputLink, outputContainer.firstElementChild);
-			outputLink.addEventListener("click", () => outputLink.style.backgroundColor = "grey")
-		}
-		const output = document.querySelector(".outputLinkContainer")
-		output.dataset.batchCount = Number(output.dataset.batchCount) + 1
-	})
+	outputLink.dataset.jobId = window.currentJobId;
+	outputLink.dataset.current = 0;
+	outputLink.dataset.totalImages = files.length;
+	worker = new Worker("assets/worker.js")
+	worker.postMessage({ message: "initialize", files, id: window.currentJobId })
+	worker.onmessage = updateJobProgress;
+	window.workers[window.currentJobId] = worker;
+	window.currentJobId += 1
+	
+	outputLink.innerText = `Processing images: 1/${files.length}`
+	outputContainer.insertBefore(outputLink, outputContainer.firstElementChild)
 }
 
+function updateJobProgress(msg) {
+	// get output link with data-job-id === id and update status
+	// this function will also handle showing/hiding the loading spinner CSS animation
+	const job = document.querySelector(`[data-job-id='${msg.data.id}']`)
+	if (!job) { 
+		console.error(`Can't find job with ID ${msg.data.id}. Terminating worker.`);
+		cleanUpWorker(msg.data.id)
+		return
+	}
+	
+	switch (msg.data.jobStatus) {
+		// no data, just increment the current item in progress
+		case 'progress':
+			job.innerText = `Processing images: ${Number(job.dataset.current) + 1}/${job.dataset.totalImages}`
+			job.dataset.current = Number(job.dataset.current) + 1
+			break;
+		
+		// update link text and terminate/cleanup worker
+		case 'error':
+			job.innerText = `Error during processing, please retry`
+			job.style.backgroundColor = "lightpink"
+			cleanUpWorker(msg.data.id)
+			break;
+			
+		// data will be {linkURL: data URL, fileName: text string for file name, linkText: text string for link text (} - update link href and add bg-color change click event, then terminate worker
+		// TODO add separate download and cancel buttons that are the links, make current links just containers
+		case 'complete':
+			job.download = msg.data.filename
+			job.innerText = msg.data.linkText
+			job.href = msg.data.linkURL
+			job.addEventListener("click", () => {
+				job.style.backgroundColor = "grey"
+			})
+			break;
+	}
+}
 
+function cleanUpWorker(id) {
+	window.workers[id].terminate();
+	delete window.workers[id]
+}
+
+function clearInput() {
+	document.getElementById("inputform").reset();
+	document.getElementById("image-count").innerText = '';
+}
 
 setupPrivacyAccordion()
 setupStartButton()

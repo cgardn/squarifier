@@ -65,7 +65,7 @@ a {
 	margin-block-end: 3px;
 }
 .multi-image-notice {
-	display: none;
+	visibility: hidden;
 }
 #privacy-trigger {
 	margin-top: auto;
@@ -118,7 +118,7 @@ a {
 }
 
 #start-button {
-	display: none;
+	visibility: hidden;
 	margin: 30px;
 }
 .pushable {
